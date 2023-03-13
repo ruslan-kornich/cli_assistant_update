@@ -1,7 +1,7 @@
 Hi! I'm your bot and i can:
  - add [name phone birthday] -> add contact (phone and birthday optional)
  - add_phone [name phone] -> add new phone contact
- - add_birthday [name birthday] -> add new phone contact
+ - add_birthday [name birthday] -> add date of birthday contact
  - change_phone [name old phone new phone] -> change phone
  - change_birthday [name birthday] -> change birthday
  - del [name] -> delete contacts
@@ -10,6 +10,9 @@ Hi! I'm your bot and i can:
  - show_all -> show AddressBook
  - show [n] -> page-by-page input of the AddressBook, n - the number of contacts on one page
  - phone [name] -> show phone by contact name
+ - search [text] -> searches in AddressBook for the specified text
+ - load -> loading a saved AddressBook
+ - save -> saving the current AddressBook
 To exit, enter any of the commands -> (exit, good bye, close)
 Format of the birthday: DD.MM.YYYYY or D.M.YYYY.
 Phone number must contain 12 start with "+" or 10 digits and start with "0"

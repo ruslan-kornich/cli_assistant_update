@@ -8,17 +8,15 @@ def input_error(func):
         try:
             return func(user_data)
         except KeyError:
-            msg = "Contact is not found. Try again!"
-            return msg
+            return f"Contact is not found. Try again!"
         except ValueError:
-            msg = "Invalid format of data. Try again!"
-            return msg
+            return f"Invalid format of data. Try again!"
         except IndexError:
-            msg = "You didn't enter the contact name or phone. Try again!"
-            return msg
+            return f"You didn't enter the contact name or phone. Try again!"
         except RuntimeError:
-            msg = "This is the end of AddressBook"
-            return msg
+            return f"This is the end of AddressBook"
+        except FileNotFoundError:
+            return f"File not found. Try again!"
 
     return wrapper
 
@@ -101,7 +99,7 @@ def change_birthday(user_data: list) -> str:
 
 @input_error
 def del_birthday(user_data: list) -> str:
-    """Function to see the date of birth of a contact"""
+    """The function deletes the contact's date of birth"""
 
     return BOOK[user_data[0]].remove_birthday()
 
@@ -115,9 +113,9 @@ def change_phone(user_data: list) -> str:
 
 @input_error
 def show_phone_handler(user_data: list) -> str:
-    """Function to display on the screen the phone number of the current contact"""
+    """The function displays the phone number of an existing contact"""
 
-    return "%s" % BOOK.get((user_data[0]), "Contact is not found. Try again!")
+    return BOOK[user_data[0]].show_phones()
 
 
 @input_error
@@ -139,23 +137,23 @@ def del_record(user_data: list) -> str:
 
 @input_error
 def del_phone(user_data: list) -> str:
-    """"The function of viewing the indications of the telephone number of the contact"""
+    """The function deletes the specified phone number of the contact"""
 
     return BOOK[user_data[0]].remove_phone(user_data[1])
 
 
 @input_error
 def show_all_handler(*args, **kwargs) -> str:
-    """The function to display the entire list of contacts on the screen"""
+    """"The function to display the entire list of contacts on the screen"""
 
     dict_to_str, count = [], 0
     for key, value in BOOK.items():
         count += 1
         if value.birthday:
             days = BOOK[key].days_to_birthday()
-            dict_to_str.append(f"  {count}. {value}, {days} days to birthday")
+            dict_to_str.append("  {}. {}, {} days to birthday".format(count, value, days))
         else:
-            dict_to_str.append(f"  {count}. {value}")
+            dict_to_str.append("  {}. {}".format(count, value))
     dict_output = "\n".join(dict_to_str)
 
     return f"{dict_output}"
@@ -172,11 +170,26 @@ def pagination(user_data: list):
     return result
 
 
+@input_error
+def search(user_data):
+    found = BOOK.search(str(user_data[0]))
+    sep = '\n'
+    return f"{sep.join(found)}" if found else f"Sorry, no matches found"
+
+
+@input_error
+def save_to_file(*args, **kwargs):
+    name_file = input("Please, enter file name: ") + '.bin'
+    return BOOK.save_to_file(name_file)
+
+
+@input_error
+def load_from_file(*args, **kwargs):
+    name_file = input("Please, enter the file name from which you want to download: ") + '.bin'
+    return BOOK.load_from_file(name_file)
+
+
 BOOK = AdressBook()
-BOOK.add_record(Record("john"))
-BOOK.add_record(Record("alex", '+123456789101', '10.10.1995'))
-BOOK.add_record(Record("harry", '+123456789102'))
-BOOK.add_record(Record("george", '+123456789102'))
 
 HANDLER = {
     "hello": hello_handler,
@@ -191,6 +204,9 @@ HANDLER = {
     "show": pagination,
     "del": del_record,
     "phone": show_phone_handler,
+    "search": search,
+    "save": save_to_file,
+    "load": load_from_file,
     "exit": bye_handler,
     "close": bye_handler,
     "good": bye_handler,

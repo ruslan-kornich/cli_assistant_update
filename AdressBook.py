@@ -1,5 +1,6 @@
-import re
+import pickle
 from collections import UserDict
+import re
 from datetime import datetime
 
 
@@ -31,7 +32,7 @@ class Phone(Field):
 
     @staticmethod
     def verify_phone(value):
-        phone = re.findall(r'\+\d{12}|0\d{9}', value)
+        phone = re.findall(r'(\+\d{12})|(^0\d{10}$)', value)
         if not phone:
             raise ValueError
 
@@ -72,16 +73,23 @@ class Record:
         return f"{self.name}: {self.phones}, {self.birthday}"
 
     def add_phone(self, new_phone):
+        new_phone = Phone(new_phone)
         if not self.phones:
             self.phones.append(new_phone)
             return f"Phone '{new_phone}' is added"
         else:
             for phone in self.phones:
-                if phone != new_phone:
+                if phone.value != new_phone.value:
                     self.phones.append(new_phone)
                     return f"Phone '{new_phone}' is added"
                 else:
                     return f"Phone '{new_phone}' already exist in AddressBook. Try again!"
+
+    def show_phones(self):
+        if not self.phones:
+            return f"Phone numbers not found"
+        else:
+            return f"{self.name}'s phones: {self.phones}"
 
     def add_birthday(self, birthday):
         if self.birthday:
@@ -150,3 +158,21 @@ class AdressBook(UserDict):
         for i in result_list:
             self.count += 1
         yield result_list
+
+    def search(self, search_ch):
+        result = []
+        for name, record in self.data.items():
+            search = re.findall(search_ch, f'{self.data[name]}')
+            if search:
+                result.append(f'{self.data[name]}')
+        return result
+
+    def save_to_file(self, name_file):
+        with open(name_file, "wb") as file:
+            pickle.dump(self.data, file)
+        return f"AddressBook save in '{name_file}'"
+
+    def load_from_file(self, name_file):
+        with open(name_file, "rb") as file:
+            self.data = pickle.load(file)
+        return f"AddressBook loaded from '{name_file}'"
